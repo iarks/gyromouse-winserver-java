@@ -1,7 +1,6 @@
 package tk.hobbyp;
 
 import org.json.JSONObject;
-
 import java.awt.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -14,6 +13,8 @@ class AppRequestHandler
     private byte[] receivedByte = new byte[1024];
 
     private DatagramSocket port;
+    long timeNow=0,timePrev=0;
+    boolean firstVal=false;
 
     AppRequestHandler(DatagramSocket port)
     {
@@ -34,30 +35,47 @@ class AppRequestHandler
                 DatagramPacket receivePacket = new DatagramPacket(receivedByte, receivedByte.length);
                 port.receive(receivePacket);
                 receivedString = new String(receivePacket.getData());
+                System.out.println(receivedString);
                 String dx = "0.0", dy = "0.0";
                 try
                 {
                     JSONObject jsonObj = new JSONObject(receivedString);
                     dx = jsonObj.getString("X");
                     dy = jsonObj.getString("Y");
-//                    System.out.println("X: " + dx);
-//                    System.out.println("Y: " + dy);
+                    System.out.println("X: " + dx);
+                    System.out.println("Y: " + dy);
                 }
                 catch (Exception e)
                 {
                     System.out.println(e.getMessage());
                 }
-                float dxf, dyf;
-
-                dxf = Float.parseFloat(dx);
-                dyf = Float.parseFloat(dy);
-
-                moveCursor(dxf*25, dyf*25);
+                if(dx.equals("EOT"))
+                {
+                    firstVal=true;
+                }
+                else
+                {
+                    float dxf, dyf;
+                    dxf = Float.parseFloat(dx);
+                    dyf = Float.parseFloat(dy);
+                    if(!firstVal)
+                    {
+                        moveCursor(dxf*25, dyf*25);
+                    }
+                    else
+                    {
+                        firstVal=false;
+                    }
+                }
             }
             catch (Exception exception)
             {
                 exception.getMessage();
                 continue label;
+            }
+            finally
+            {
+                timePrev=timeNow;
             }
         }
     }
