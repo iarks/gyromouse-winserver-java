@@ -2,19 +2,17 @@ package tk.hobbyp;
 
 import org.json.JSONObject;
 import java.awt.*;
+import java.awt.event.InputEvent;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-/**
- * Created by Arkadeep on 02-Aug-17.
- */
 class AppRequestHandler
 {
     private byte[] receivedByte = new byte[1024];
 
     private DatagramSocket port;
     long timeNow=0,timePrev=0;
-    boolean firstVal=false;
+    private boolean firstVal=false;
 
     AppRequestHandler(DatagramSocket port)
     {
@@ -49,33 +47,37 @@ class AppRequestHandler
                 {
                     System.out.println(e.getMessage());
                 }
-                if(dx.equals("EOT"))
+                float dyf,dxf;
+                switch (dx)
                 {
-                    firstVal=true;
+                    case "EOT":
+                        firstVal = true;
+                        break;
+                    case "S":
+                        dyf = Float.parseFloat(dy);
+                        scrollPage(dyf);
+                        break;
+                    case "RD":
+                        rightDown();
+                        break;
+                    case "RU":
+                        rightUp();
+                        break;
+                    default:
+                        dxf = Float.parseFloat(dx);
+                        dyf = Float.parseFloat(dy);
+                        if (!firstVal)
+                        {
+                            moveCursor(dxf * 25, dyf * 25);
+                        }
+                        else
+                        {
+                            firstVal = false;
+                        }
                 }
-                else
-                {
-                    float dxf, dyf;
-                    dxf = Float.parseFloat(dx);
-                    dyf = Float.parseFloat(dy);
-                    if(!firstVal)
-                    {
-                        moveCursor(dxf*25, dyf*25);
-                    }
-                    else
-                    {
-                        firstVal=false;
-                    }
-                }
-            }
-            catch (Exception exception)
+            }catch (Exception e)
             {
-                exception.getMessage();
                 continue label;
-            }
-            finally
-            {
-                timePrev=timeNow;
             }
         }
     }
@@ -94,6 +96,61 @@ class AppRequestHandler
         {
             e.printStackTrace();
         }
+    }
+
+    private void scrollPage(float dy)
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mouseWheel(-(int)dy);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    void scrollClick()
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mousePress(InputEvent.BUTTON2_MASK);
+            robot.mouseRelease(InputEvent.BUTTON2_MASK);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void rightDown()
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mousePress(InputEvent.BUTTON3_MASK);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void rightUp()
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mouseRelease(InputEvent.BUTTON3_MASK);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 }
 
