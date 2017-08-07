@@ -3,8 +3,10 @@ package tk.hobbyp;
 import org.json.JSONObject;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.concurrent.locks.ReentrantLock;
 
 class AppRequestHandler
 {
@@ -13,6 +15,8 @@ class AppRequestHandler
     private DatagramSocket port;
     long timeNow=0,timePrev=0;
     private boolean firstVal=false;
+    private String receivedString;
+    ReentrantLock clipboard = new ReentrantLock();
 
     AppRequestHandler(DatagramSocket port)
     {
@@ -29,14 +33,16 @@ class AppRequestHandler
         {
             try
             {
-                String receivedString;
+                receivedString=null;
                 DatagramPacket receivePacket = new DatagramPacket(receivedByte, receivedByte.length);
                 port.receive(receivePacket);
-                receivedString = new String(receivePacket.getData());
+                receivedString = new String(receivePacket.getData(),"UTF-8");
+                receivedString = receivedString.trim();
                 System.out.println(receivedString);
                 String dx = "0.0", dy = "0.0";
                 try
                 {
+
                     JSONObject jsonObj = new JSONObject(receivedString);
                     dx = jsonObj.getString("X");
                     dy = jsonObj.getString("Y");
@@ -63,6 +69,22 @@ class AppRequestHandler
                     case "RU":
                         rightUp();
                         break;
+                    case "K":
+                        System.out.println(dy);
+                        System.out.println(dy.getBytes("UTF-8").toString());
+//                        Thread th = new Thread(new CopyPaste(dy,clipboard));
+//                        th.start();
+                        break;
+                    case "BS":
+                        backSpace();
+                        break;
+                    case "EN":
+                        enter();
+                        break;
+                    case "U":
+                        dyf = Float.parseFloat(dy);
+                        pressUnicode((int)dyf);
+                        break;
                     default:
                         dxf = Float.parseFloat(dx);
                         dyf = Float.parseFloat(dy);
@@ -75,7 +97,8 @@ class AppRequestHandler
                             firstVal = false;
                         }
                 }
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 continue label;
             }
@@ -151,6 +174,66 @@ class AppRequestHandler
             e.printStackTrace();
         }
 
+    }
+
+    private void backSpace()
+    {
+        Robot rob = null;
+        try
+        {
+            rob = new Robot();
+            rob.keyPress(KeyEvent.VK_BACK_SPACE);
+            rob.keyRelease(KeyEvent.VK_BACK_SPACE);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private void enter()
+    {
+        Robot rob = null;
+        try
+        {
+            rob = new Robot();
+            rob.keyPress(KeyEvent.VK_ENTER);
+            rob.keyRelease(KeyEvent.VK_ENTER);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void pressUnicode(int key_code)
+    {
+        Robot r = null;
+        try
+        {
+            r = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
+        r.keyPress(KeyEvent.VK_ALT);
+
+        for(int i = 3; i >= 0; --i)
+        {
+            // extracts a single decade of the key-code and adds
+            // an offset to get the required VK_NUMPAD key-code
+            int numpad_kc = key_code / (int) (Math.pow(10, i)) % 10 + KeyEvent.VK_NUMPAD0;
+            System.out.println(numpad_kc);
+            r.keyPress(numpad_kc);
+            r.keyRelease(numpad_kc);
+        }
+
+        r.keyRelease(KeyEvent.VK_ALT);
     }
 }
 
