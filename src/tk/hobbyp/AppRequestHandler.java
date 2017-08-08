@@ -6,17 +6,14 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.concurrent.locks.ReentrantLock;
 
 class AppRequestHandler
 {
     private byte[] receivedByte = new byte[1024];
 
     private DatagramSocket port;
-    long timeNow=0,timePrev=0;
     private boolean firstVal=false;
     private String receivedString;
-    ReentrantLock clipboard = new ReentrantLock();
 
     AppRequestHandler(DatagramSocket port)
     {
@@ -59,6 +56,12 @@ class AppRequestHandler
                     case "EOT":
                         firstVal = true;
                         break;
+                    case "LD":
+                        LeftDown();
+                        break;
+                    case "LU":
+                        LeftUp();
+                        break;
                     case "S":
                         dyf = Float.parseFloat(dy);
                         scrollPage(dyf);
@@ -69,13 +72,6 @@ class AppRequestHandler
                     case "RU":
                         rightUp();
                         break;
-                    case "K":
-                        System.out.println(dy);
-                        System.out.println(dy.getBytes());
-                        System.out.println(bytesToHex(dy.getBytes("UTF-8")));
-//                        Thread th = new Thread(new CopyPaste(dy,clipboard));
-//                        th.start();
-                        break;
                     case "BS":
                         backSpace();
                         break;
@@ -85,11 +81,24 @@ class AppRequestHandler
                     case "U":
                         dyf = Float.parseFloat(dy);
                         pressUnicode((int)dyf);
+                        break;
                     case "ESC":
                         pressEscape();
                         break;
                     case "WIN":
                         pressWin();
+                        break;
+                    case "AL":
+                        arrowRight((int)Float.parseFloat(dy));
+                        break;
+                    case "AR":
+                        arrowLeft((int)Float.parseFloat(dy));
+                        break;
+                    case "AD":
+                        arrowDown((int)Float.parseFloat(dy));
+                        break;
+                    case "AU":
+                        arrowUp((int)Float.parseFloat(dy));
                         break;
                     default:
                         dxf = Float.parseFloat(dx);
@@ -168,6 +177,20 @@ class AppRequestHandler
 
     }
 
+    private void LeftDown()
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mousePress(InputEvent.BUTTON1_MASK);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
     private void rightUp()
     {
         try
@@ -179,7 +202,19 @@ class AppRequestHandler
         {
             e.printStackTrace();
         }
+    }
 
+    private void LeftUp()
+    {
+        try
+        {
+            Robot robot = new Robot();
+            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void backSpace()
@@ -242,17 +277,7 @@ class AppRequestHandler
         r.keyRelease(KeyEvent.VK_ALT);
     }
 
-    private String bytesToHex(byte[] in)
-    {
-        final StringBuilder builder = new StringBuilder();
-        for(byte b : in)
-        {
-            builder.append(String.format("%02x", b));
-        }
-        return builder.toString();
-    }
-
-    private void pressEscape()
+   private void pressEscape()
     {
         Robot robot = null;
         try
@@ -280,6 +305,74 @@ class AppRequestHandler
         }
         robot.keyPress(KeyEvent.VK_WINDOWS);
         robot.keyRelease(KeyEvent.VK_WINDOWS);
+    }
+
+    private void arrowRight(int p)
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        if(p==1)
+            robot.keyPress(KeyEvent.VK_RIGHT);
+        else
+            robot.keyRelease(KeyEvent.VK_RIGHT);
+    }
+
+    private void arrowDown(int p)
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        if(p==1)
+            robot.keyPress(KeyEvent.VK_DOWN);
+        else
+            robot.keyRelease(KeyEvent.VK_DOWN);
+    }
+
+    private void arrowUp(int p)
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        if(p==1)
+            robot.keyPress(KeyEvent.VK_UP);
+        else
+            robot.keyRelease(KeyEvent.VK_UP);
+    }
+
+    private void arrowLeft(int p)
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        if(p==1)
+            robot.keyPress(KeyEvent.VK_LEFT);
+        else
+            robot.keyRelease(KeyEvent.VK_LEFT);
     }
 }
 
