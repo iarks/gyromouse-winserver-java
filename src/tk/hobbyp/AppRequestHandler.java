@@ -71,7 +71,8 @@ class AppRequestHandler
                         break;
                     case "K":
                         System.out.println(dy);
-                        System.out.println(dy.getBytes("UTF-8").toString());
+                        System.out.println(dy.getBytes());
+                        System.out.println(bytesToHex(dy.getBytes("UTF-8")));
 //                        Thread th = new Thread(new CopyPaste(dy,clipboard));
 //                        th.start();
                         break;
@@ -84,6 +85,11 @@ class AppRequestHandler
                     case "U":
                         dyf = Float.parseFloat(dy);
                         pressUnicode((int)dyf);
+                    case "ESC":
+                        pressEscape();
+                        break;
+                    case "WIN":
+                        pressWin();
                         break;
                     default:
                         dxf = Float.parseFloat(dx);
@@ -234,6 +240,46 @@ class AppRequestHandler
         }
 
         r.keyRelease(KeyEvent.VK_ALT);
+    }
+
+    private String bytesToHex(byte[] in)
+    {
+        final StringBuilder builder = new StringBuilder();
+        for(byte b : in)
+        {
+            builder.append(String.format("%02x", b));
+        }
+        return builder.toString();
+    }
+
+    private void pressEscape()
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        robot.keyPress(KeyEvent.VK_ESCAPE);
+        robot.keyRelease(KeyEvent.VK_ESCAPE);
+    }
+
+    private void pressWin()
+    {
+        Robot robot = null;
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException e)
+        {
+            e.printStackTrace();
+        }
+        robot.keyPress(KeyEvent.VK_WINDOWS);
+        robot.keyRelease(KeyEvent.VK_WINDOWS);
     }
 }
 
