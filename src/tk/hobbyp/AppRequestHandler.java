@@ -253,6 +253,9 @@ class AppRequestHandler
 
     private void pressUnicode(int key_code)
     {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        boolean originalState = toolkit.getLockingKeyState(KeyEvent.VK_NUM_LOCK);
+        toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);
         Robot r = null;
         try
         {
@@ -274,8 +277,8 @@ class AppRequestHandler
             r.keyPress(numpad_kc);
             r.keyRelease(numpad_kc);
         }
-
         r.keyRelease(KeyEvent.VK_ALT);
+        toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, originalState);
     }
 
    private void pressEscape()
