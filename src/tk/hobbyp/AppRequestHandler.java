@@ -26,6 +26,7 @@ class AppRequestHandler
     {
 //        System.out.println("HERE before label");
         label:
+        //noinspection InfiniteLoopStatement
         while(true)
         {
             try
